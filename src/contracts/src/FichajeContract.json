@@ -1,0 +1,303 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "aprobarFichaje",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_club",
+				"type": "address"
+			}
+		],
+		"name": "autorizarClub",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			}
+		],
+		"name": "DocumentoSubido",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			}
+		],
+		"name": "FichajeAprobado",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "nombreJugador",
+				"type": "string"
+			}
+		],
+		"name": "FichajeRegistrado",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_nombreJugador",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_edad",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_clubOrigen",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_clubDestino",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_valorTransferencia",
+				"type": "uint256"
+			}
+		],
+		"name": "registrarFichaje",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_ipfsHash",
+				"type": "string"
+			}
+		],
+		"name": "subirDocumentoFichaje",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "clubsAutorizados",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "fichajes",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "nombreJugador",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "edad",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "clubOrigen",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "clubDestino",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "valorTransferencia",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "fechaRegistro",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "aprobado",
+				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "subidoPor",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "obtenerFichaje",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "nombreJugador",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "edad",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "clubOrigen",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "clubDestino",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "valorTransferencia",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "fechaRegistro",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "aprobado",
+				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "subidoPor",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalFichajes",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]

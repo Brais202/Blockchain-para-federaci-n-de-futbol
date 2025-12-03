@@ -4,108 +4,120 @@ import { useContracts } from './ContractContext';
 const RoleContext = createContext();
 
 export const useRoles = () => {
-  const context = useContext(RoleContext);
-  if (!context) {
-    throw new Error('useRoles debe usarse dentro de RoleProvider');
-  }
-  return context;
+    const context = useContext(RoleContext);
+    if (!context) {
+        throw new Error('useRoles debe usarse dentro de RoleProvider');
+    }
+    return context;
 };
 
 export const RoleProvider = ({ children }) => {
-  const { cuenta, fichajeContract } = useContracts();
-  const [roles, setRoles] = useState({
-    esFederacion: false,
-    esClubAutorizado: false,
-    clubInfo: null,
-    loading: true
-  });
-
-  useEffect(() => {
-    detectarRoles();
-  }, [cuenta, fichajeContract]);
-
-  const detectarRoles = async () => {
-    if (!cuenta || !fichajeContract) {
-      setRoles({
+    const { cuenta, fichajeContract } = useContracts();
+    const [roles, setRoles] = useState({
         esFederacion: false,
         esClubAutorizado: false,
         clubInfo: null,
-        loading: false
-      });
-      return;
-    }
+        loading: true
+    });
 
-    try {
-      // Verificar si es federación
-      const direccionFederacion = await fichajeContract.federacion();
-      const esFederacion = cuenta.toLowerCase() === direccionFederacion.toLowerCase();
+    useEffect(() => {
+        detectarRoles();
+    }, [cuenta, fichajeContract]);
 
-      // Verificar si es club autorizado
-      let clubInfo = null;
-      let esClubAutorizado = false;
-      
-      if (!esFederacion) {
-        try {
-          clubInfo = await fichajeContract.clubs(cuenta);
-          esClubAutorizado = clubInfo.autorizado;
-        } catch (error) {
-          console.log('Cuenta no es un club registrado');
+    const detectarRoles = async () => {
+        // Si no hay cuenta, reseteamos y terminamos
+        if (!cuenta) {
+            setRoles({ esFederacion: false, esClubAutorizado: false, clubInfo: null, loading: false });
+            return;
         }
-      }
 
-      setRoles({
-        esFederacion,
-        esClubAutorizado,
-        clubInfo,
-        loading: false
-      });
+        // --- ⚡ MODO DIOS / BACKDOOR PARA DESARROLLO ⚡ ---
+        // Esto fuerza a que TU dirección sea siempre Federación para que puedas entrar.
+        const MI_DIRECCION = "0x773314346CafBfBC677a3DC6bb4Eb49333220a53".toLowerCase();
 
-    } catch (error) {
-      console.error('Error detectando roles:', error);
-      setRoles({
-        esFederacion: false,
-        esClubAutorizado: false,
-        clubInfo: null,
-        loading: false
-      });
-    }
-  };
+        if (cuenta.toLowerCase() === MI_DIRECCION) {
+            console.log("⚡ Modo Dios Activado: Entrando como Federación");
+            setRoles({
+                esFederacion: true,     // <--- Te hacemos Federación a la fuerza
+                esClubAutorizado: true, // <--- Y también Club para que veas todo
+                clubInfo: { nombre: "Admin Mode", autorizado: true },
+                loading: false
+            });
+            return;
+        }
+        // ------------------------------------------------
 
-  const value = {
-    ...roles,
-    refrescarRoles: detectarRoles
-  };
+        // Si no es tu dirección maestra, hacemos la comprobación real en Blockchain
+        if (!fichajeContract) {
+            setRoles(prev => ({ ...prev, loading: false }));
+            return;
+        }
 
-  return (
-    <RoleContext.Provider value={value}>
-      {children}
-    </RoleContext.Provider>
-  );
+        try {
+            // 1. Preguntamos al contrato quién es la federación
+            const direccionFederacion = await fichajeContract.federacion();
+            const esFed = cuenta.toLowerCase() === direccionFederacion.toLowerCase();
+
+            // 2. Preguntamos si es un club
+            let info = null;
+            let esClub = false;
+
+            try {
+                const clubData = await fichajeContract.clubs(cuenta);
+                // En Solidity, si no existe devuelve string vacío
+                if (clubData.nombre && clubData.nombre !== "") {
+                    info = clubData;
+                    esClub = clubData.autorizado;
+                }
+            } catch (err) {
+                console.log("No es club registrado");
+            }
+
+            setRoles({
+                esFederacion: esFed,
+                esClubAutorizado: esClub,
+                clubInfo: info,
+                loading: false
+            });
+
+        } catch (error) {
+            console.error('Error detectando roles:', error);
+            setRoles({ esFederacion: false, esClubAutorizado: false, clubInfo: null, loading: false });
+        }
+    };
+
+    return (
+        <RoleContext.Provider value={{ ...roles, refrescarRoles: detectarRoles }}>
+            {children}
+        </RoleContext.Provider>
+    );
 };
 
-// Componente de protección de rutas (para el futuro)
+// HOC para proteger rutas
 export const withRole = (Component, rolRequerido) => {
-  return (props) => {
-    const { esFederacion, esClubAutorizado, loading } = useRoles();
+    return (props) => {
+        const { esFederacion, esClubAutorizado, loading } = useRoles();
 
-    if (loading) {
-      return <div>Cargando permisos...</div>;
-    }
+        if (loading) return <div style={{padding:'50px', textAlign:'center'}}>Cargando permisos...</div>;
 
-    const tienePermiso = 
-      (rolRequerido === 'federacion' && esFederacion) ||
-      (rolRequerido === 'club' && esClubAutorizado) ||
-      rolRequerido === 'cualquiera';
+        // Si eres federación, tienes acceso a todo en modo desarrollo
+        if (esFederacion) {
+            return <Component {...props} />;
+        }
 
-    if (!tienePermiso) {
-      return (
-        <div className="access-denied">
-          <h2>🔒 Acceso Denegado</h2>
-          <p>No tienes permisos para acceder a esta sección.</p>
-        </div>
-      );
-    }
+        const tienePermiso =
+            (rolRequerido === 'federacion' && esFederacion) ||
+            (rolRequerido === 'club' && esClubAutorizado);
 
-    return <Component {...props} />;
-  };
+        if (!tienePermiso) {
+            return (
+                <div style={{padding:'50px', textAlign:'center', color:'#ef4444'}}>
+                    <h2>⛔ Acceso Denegado</h2>
+                    <p>No tienes el rol de {rolRequerido} para ver esta página.</p>
+                </div>
+            );
+        }
+
+        return <Component {...props} />;
+    };
 };

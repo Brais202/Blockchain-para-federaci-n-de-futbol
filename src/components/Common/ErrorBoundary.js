@@ -1,70 +1,71 @@
 import React from 'react';
 
 class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { 
-      hasError: false,
-      error: null,
-      errorInfo: null
-    };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    this.setState({
-      error: error,
-      errorInfo: errorInfo
-    });
-    
-    // En producción, enviar a servicio de logging
-    console.error('Error capturado por ErrorBoundary:', error, errorInfo);
-  }
-
-  reiniciarAplicacion = () => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null
-    });
-    window.location.reload();
-  };
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="error-boundary">
-          <div className="error-content">
-            <h2>⚠️ Algo salió mal</h2>
-            <p>La aplicación encontró un error inesperado.</p>
-            
-            <details className="error-details">
-              <summary>Detalles técnicos (para desarrollo)</summary>
-              <p>{this.state.error && this.state.error.toString()}</p>
-              <pre>{this.state.errorInfo.componentStack}</pre>
-            </details>
-
-            <div className="error-actions">
-              <button onClick={this.reiniciarAplicacion} className="btn-primary">
-                🔄 Reiniciar Aplicación
-              </button>
-              <button 
-                onClick={() => window.location.href = '/'}
-                className="btn-secondary"
-              >
-                🏠 Ir al Inicio
-              </button>
-            </div>
-          </div>
-        </div>
-      );
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
     }
 
-    return this.props.children;
-  }
+    static getDerivedStateFromError(error) {
+        // Actualiza el estado para que el siguiente renderizado muestre la UI alternativa
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        // También puedes registrar el error en un servicio de reporte de errores
+        console.error("ErrorBoundary atrapó un error:", error, errorInfo);
+        this.setState({ errorInfo });
+    }
+
+    render() {
+        if (this.state.hasError) {
+            // Puedes renderizar cualquier interfaz de repuesto personalizada
+            return (
+                <div style={{
+                    padding: '2rem',
+                    margin: '2rem',
+                    border: '1px solid #f87171',
+                    backgroundColor: '#fef2f2',
+                    borderRadius: '12px',
+                    color: '#991b1b',
+                    fontFamily: 'sans-serif'
+                }}>
+                    <h2>💥 ¡Vaya! Algo salió mal.</h2>
+                    <p>La aplicación ha encontrado un error inesperado.</p>
+
+                    <details style={{ whiteSpace: 'pre-wrap', marginTop: '1rem', cursor: 'pointer' }}>
+                        <summary>Ver detalles técnicos del error</summary>
+                        <div style={{ marginTop: '10px', fontSize: '0.85rem', fontFamily: 'monospace', background: 'rgba(0,0,0,0.05)', padding: '10px', borderRadius: '6px' }}>
+                            <p style={{fontWeight: 'bold', color: '#dc2626'}}>
+                                {this.state.error && this.state.error.toString()}
+                            </p>
+                            <br />
+                            {/* Aquí estaba el fallo: añadimos la interrogación ?. para evitar crash si es null */}
+                            {this.state.errorInfo?.componentStack}
+                        </div>
+                    </details>
+
+                    <button
+                        onClick={() => window.location.reload()}
+                        style={{
+                            marginTop: '1.5rem',
+                            padding: '0.75rem 1.5rem',
+                            background: '#dc2626',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        🔄 Recargar Página
+                    </button>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
 }
 
 export default ErrorBoundary;

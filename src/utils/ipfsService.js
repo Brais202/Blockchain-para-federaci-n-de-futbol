@@ -207,7 +207,7 @@ export const subirMultiplesArchivosIPFS = async (files) => {
     const resultados = [];
     
     for (const file of files) {
-      const resultado = await subirArchivoIPFS(file);
+      const resultado = await subirArchivo(file);
       resultados.push({
         nombre: file.name,
         ...resultado

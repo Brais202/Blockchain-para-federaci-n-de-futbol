@@ -4,8 +4,8 @@ import { Navigate } from 'react-router-dom';
 import { useContracts } from './Common/ContractContext';
 import { User, FileText, ArrowRightLeft, DollarSign, Activity, CheckCircle, Search, FileUp, ShieldCheck } from 'lucide-react';
 import EthCrypto from 'eth-crypto';
-import { subirContenido } from '../../utils/ipfsService';
-import { FEDERATION_PUBLIC_KEY } from '../../config';
+import { subirContenido } from '../utils/ipfsService';
+import { FEDERATION_PUBLIC_KEY } from '../config';
 
 
 const MS_POR_ANO = 1000 * 60 * 60 * 24 * 365.25;

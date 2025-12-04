@@ -8,7 +8,7 @@ import {
     History, Clock, KeyRound, Copy
 } from 'lucide-react';
 import EthCrypto from 'eth-crypto';
-import { obtenerArchivoIPFS } from '../../utils/ipfsService';
+import { obtenerArchivoIPFS } from '../utils/ipfsService';
 
 const FederationView = () => {
     const { fichajeContract, cuenta, provider } = useContracts();

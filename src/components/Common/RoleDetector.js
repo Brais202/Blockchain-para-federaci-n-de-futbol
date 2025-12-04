@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useContracts } from './ContractContext';
 
 const RoleContext = createContext();
@@ -20,42 +20,30 @@ export const RoleProvider = ({ children }) => {
         loading: true
     });
 
-    useEffect(() => {
-        detectarRoles();
-    }, [cuenta, fichajeContract]);
-
-    const detectarRoles = async () => {
-        // Si no hay cuenta, reseteamos y terminamos
-        if (!cuenta) {
+    const detectarRoles = useCallback(async () => {
+        if (!cuenta || !fichajeContract) {
             setRoles({ esFederacion: false, esClubAutorizado: false, clubInfo: null, loading: false });
             return;
         }
 
-        if (!fichajeContract) {
-            setRoles(prev => ({ ...prev, loading: false }));
-            return;
-        }
-
         try {
-            // --- LÓGICA DE DETECCIÓN ---
             const direccionFederacion = await fichajeContract.federacion();
             const cuentaLower = cuenta.toLowerCase();
-
             const esFed = cuentaLower === direccionFederacion.toLowerCase();
 
             let clubInfo = null;
             let esClub = false;
-
             try {
                 const clubData = await fichajeContract.clubs(cuenta);
-
                 if (clubData.nombre && clubData.nombre !== "") {
                     clubInfo = clubData;
                     esClub = clubData.autorizado;
                 }
             } catch (err) {
+                // Silencioso, no es un error fatal, solo no es un club registrado
             }
 
+            // La lógica de tu compañero: la federación también cuenta como "club autorizado" para ver todo.
             const esClubAutorizadoFinal = esFed || esClub;
 
             setRoles({
@@ -69,7 +57,12 @@ export const RoleProvider = ({ children }) => {
             console.error('Error detectando roles:', error);
             setRoles({ esFederacion: false, esClubAutorizado: false, clubInfo: null, loading: false });
         }
-    };
+    }, [cuenta, fichajeContract]);
+
+
+    useEffect(() => {
+        detectarRoles();
+    }, [detectarRoles]);
 
     return (
         <RoleContext.Provider value={{ ...roles, refrescarRoles: detectarRoles }}>
@@ -85,6 +78,7 @@ export const withRole = (Component, rolRequerido) => {
 
         if (loading) return <div style={{padding:'50px', textAlign:'center'}}>Cargando permisos...</div>;
 
+        // La versión de tu compañero es más flexible aquí
         if (esFederacion) {
             return <Component {...props} />;
         }

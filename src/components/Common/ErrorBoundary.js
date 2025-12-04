@@ -12,14 +12,12 @@ class ErrorBoundary extends React.Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        // También puedes registrar el error en un servicio de reporte de errores
         console.error("ErrorBoundary atrapó un error:", error, errorInfo);
         this.setState({ errorInfo });
     }
 
     render() {
         if (this.state.hasError) {
-            // Puedes renderizar cualquier interfaz de repuesto personalizada
             return (
                 <div style={{
                     padding: '2rem',
@@ -30,7 +28,7 @@ class ErrorBoundary extends React.Component {
                     color: '#991b1b',
                     fontFamily: 'sans-serif'
                 }}>
-                    <h2>💥 ¡Vaya! Algo salió mal.</h2>
+                    <h2>¡Vaya! Algo salió mal.</h2>
                     <p>La aplicación ha encontrado un error inesperado.</p>
 
                     <details style={{ whiteSpace: 'pre-wrap', marginTop: '1rem', cursor: 'pointer' }}>
@@ -40,7 +38,6 @@ class ErrorBoundary extends React.Component {
                                 {this.state.error && this.state.error.toString()}
                             </p>
                             <br />
-                            {/* Aquí estaba el fallo: añadimos la interrogación ?. para evitar crash si es null */}
                             {this.state.errorInfo?.componentStack}
                         </div>
                     </details>

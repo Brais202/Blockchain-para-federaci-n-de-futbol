@@ -1,4 +1,3 @@
-// src/components/AdminClubs.jsx
 import React, { useState, useEffect } from 'react';
 
 const AdminClubs = ({ contrato }) => {

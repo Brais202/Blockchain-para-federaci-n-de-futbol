@@ -3,13 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { useContracts } from './ContractContext';
 import { useRoles } from './RoleDetector';
-import { Menu, X, Wallet, LogOut, ChevronDown } from 'lucide-react';
+import { Wallet, LogOut } from 'lucide-react';
 
 const Header = () => {
     const { cuenta, conectarWallet, desconectar, provider } = useContracts();
     const { esFederacion, esClubAutorizado } = useRoles();
     const [balance, setBalance] = useState('0');
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
 
     useEffect(() => {

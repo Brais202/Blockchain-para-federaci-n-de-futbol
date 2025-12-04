@@ -4,6 +4,8 @@ import { Navigate } from 'react-router-dom';
 import { useContracts } from './Common/ContractContext';
 import { User, FileText, ArrowRightLeft, DollarSign, Activity, CheckCircle, Search } from 'lucide-react';
 
+const MS_POR_ANO = 1000 * 60 * 60 * 24 * 365.25;
+
 const ClubView = () => {
     const { fichajeContract, cuenta, provider } = useContracts();
 
@@ -14,9 +16,15 @@ const ClubView = () => {
     // Datos
     const [fichajesData, setFichajesData] = useState({ misFichajes: [], mercadoGeneral: [] });
     const [estadisticas, setEstadisticas] = useState({ enviados: 0, recibidos: 0, gastado: 0, ingresado: 0 });
-    const [nuevoFichaje, setNuevoFichaje] = useState({ nombreJugador: "", edad: "", clubDestino: "", valorTransferencia: "", agente: "" });
+    const [nuevoFichaje, setNuevoFichaje] = useState({ nombreJugador: "", fechaNacimiento: "", clubDestino: "", valorTransferencia: "", agente: "" });
 
-    // Eliminamos el estado de ingresosManuales
+    // Función auxiliar para calcular la edad en el frontend
+    const calcularEdad = (timestampSegundos) => {
+        if (!timestampSegundos) return 0;
+        // Convertir segundos a milisegundos y calcular la diferencia con la fecha actual
+        const edadMilisegundos = Date.now() - (timestampSegundos.toNumber() * 1000);
+        return Math.floor(edadMilisegundos / MS_POR_ANO);
+    };
 
     const cargarDatos = useCallback(async () => {
         if (!fichajeContract || !cuenta) return;
@@ -48,10 +56,12 @@ const ClubView = () => {
                     let valorEth = 0;
                     try { valorEth = parseFloat(ethers.utils.formatEther(fichaje.valorTransferencia)); } catch(e){}
 
+                    const edadActual = calcularEdad(fichaje.jugador.fechaNacimiento);
+
                     const fichajeBase = {
                         id: i,
                         nombreJugador: fichaje.jugador.nombreJugador,
-                        edad: fichaje.jugador.edad.toString(),
+                        edad: edadActual,
                         valor: valorEth,
                         valorString: ethers.utils.formatEther(fichaje.valorTransferencia),
                         clubOrigenNombre: clubOrigenInfo.nombre || clubOrigen.substring(0,6) + "...",
@@ -68,12 +78,12 @@ const ClubView = () => {
                         misOps.push(fichajeBase);
 
                         if (clubOrigen === miCuenta) {
-                            stats.enviados++; // Soy el vendedor (Origen)
+                            stats.enviados++;
                             if (fichaje.aprobado) { stats.ingresado += valorEth; }
                         }
 
                         if (clubDestino === miCuenta) {
-                            stats.recibidos++; // Soy el comprador (Destino)
+                            stats.recibidos++;
                             if (fichaje.fondosDepositados || fichaje.aprobado) { stats.gastado += valorEth; }
                         }
                     } else {
@@ -100,12 +110,22 @@ const ClubView = () => {
     const handleRegistrar = async (e) => {
         e.preventDefault();
         if (!fichajeContract || !provider) return;
+
+        const birthDate = new Date(nuevoFichaje.fechaNacimiento);
+        if (isNaN(birthDate)) {
+            alert("Error: Fecha de nacimiento no válida.");
+            return;
+        }
+        // Timestamp en segundos
+        const fechaNacimientoTimestamp = Math.floor(birthDate.getTime() / 1000);
+
         try {
             const signer = fichajeContract.connect(provider.getSigner());
             const valorWei = ethers.utils.parseEther(nuevoFichaje.valorTransferencia);
+
             const tx = await signer.registrarFichaje(
                 nuevoFichaje.nombreJugador,
-                parseInt(nuevoFichaje.edad),
+                fechaNacimientoTimestamp,
                 cuenta,
                 nuevoFichaje.clubDestino,
                 valorWei,
@@ -113,7 +133,7 @@ const ClubView = () => {
             );
             await tx.wait();
             alert("✅ Fichaje iniciado");
-            setNuevoFichaje({ nombreJugador: "", edad: "", clubDestino: "", valorTransferencia: "", agente: "" });
+            setNuevoFichaje({ nombreJugador: "", fechaNacimiento: "", clubDestino: "", valorTransferencia: "", agente: "" });
             cargarDatos();
             setActiveTab('misFichajes');
         } catch (error) { alert("Error: " + error.message); }
@@ -278,9 +298,12 @@ const ClubView = () => {
                                     <table className="table">
                                         <thead><tr><th>Jugador</th><th>Origen</th><th>Destino</th><th>Valor</th><th>Estado</th></tr></thead>
                                         <tbody>
-                                        {fichajesData.mercadoGeneral.map(f => (
+                                        {fichajesData.mercadoGlobal.map(f => (
                                             <tr key={f.id}>
-                                                <td><strong>{f.nombreJugador}</strong><br/><small style={{color:'#64748b'}}>{f.edad} años</small></td>
+                                                <td>
+                                                    <strong>{f.nombreJugador}</strong><br/>
+                                                    <small style={{color:'#64748b'}}>{f.edad} años</small>
+                                                </td>
                                                 <td>{f.clubOrigenNombre}</td>
                                                 <td>{f.clubDestinoNombre}</td>
                                                 <td style={{fontFamily:'monospace', fontWeight:600}}>{f.valor.toFixed(4)} ETH</td>
@@ -298,19 +321,32 @@ const ClubView = () => {
                     {activeTab === 'nuevo' && (
                         <form onSubmit={handleRegistrar} style={{maxWidth:'600px', margin:'0 auto'}}>
                             <div className="form-row">
-                                <div><label style={{fontWeight:600, color:'#64748b', fontSize:'0.9rem'}}>Jugador</label><input required className="input" value={nuevoFichaje.nombreJugador} onChange={e=>setNuevoFichaje({...nuevoFichaje, nombreJugador:e.target.value})} /></div>
-                                <div><label style={{fontWeight:600, color:'#64748b', fontSize:'0.9rem'}}>Edad</label><input type="number" required className="input" value={nuevoFichaje.edad} onChange={e=>setNuevoFichaje({...nuevoFichaje, edad:e.target.value})} /></div>
+                                <input className="input" placeholder="Nombre Jugador" type="text" value={nuevoFichaje.nombreJugador} onChange={e => setNuevoFichaje({ ...nuevoFichaje, nombreJugador: e.target.value })} required />
+
+                                <input
+                                    className="input"
+                                    placeholder="Fecha de Nacimiento"
+                                    type="date"
+                                    value={nuevoFichaje.fechaNacimiento}
+                                    onChange={e => setNuevoFichaje({ ...nuevoFichaje, fechaNacimiento: e.target.value })}
+                                    required
+                                />
                             </div>
-                            <div style={{marginBottom:'1rem'}}><label style={{fontWeight:600, color:'#64748b', fontSize:'0.9rem'}}>Club Destino (Address)</label><input required className="input" value={nuevoFichaje.clubDestino} onChange={e=>setNuevoFichaje({...nuevoFichaje, clubDestino:e.target.value})} placeholder="0x..." /></div>
+                            <input className="input" placeholder="Dirección Club Destino (0x...)" type="text" value={nuevoFichaje.clubDestino} onChange={e => setNuevoFichaje({ ...nuevoFichaje, clubDestino: e.target.value })} required style={{marginBottom:'1rem'}} />
                             <div className="form-row">
-                                <div><label style={{fontWeight:600, color:'#64748b', fontSize:'0.9rem'}}>Valor (ETH)</label><input type="number" step="0.0001" required className="input" value={nuevoFichaje.valorTransferencia} onChange={e=>setNuevoFichaje({...nuevoFichaje, valorTransferencia:e.target.value})} /></div>
-                                <div><label style={{fontWeight:600, color:'#64748b', fontSize:'0.9rem'}}>Agente</label><input className="input" value={nuevoFichaje.agente} onChange={e=>setNuevoFichaje({...nuevoFichaje, agente:e.target.value})} placeholder="0x..." /></div>
+                                <input className="input" placeholder="Valor de Transferencia (ETH)" type="number" step="0.0001" value={nuevoFichaje.valorTransferencia} onChange={e => setNuevoFichaje({ ...nuevoFichaje, valorTransferencia: e.target.value })} required />
+                                <input className="input" placeholder="Dirección Agente (Opcional)" type="text" value={nuevoFichaje.agente} onChange={e => setNuevoFichaje({ ...nuevoFichaje, agente: e.target.value })} />
                             </div>
-                            <button type="submit" className="btn btn-primary" style={{width:'100%', justifyContent:'center', padding:'1rem', marginTop:'1rem'}}>Registrar en Blockchain</button>
+                            <button type="submit" className="btn btn-primary" style={{width:'100%', marginTop:'1rem', padding:'1rem'}}>Registrar Fichaje</button>
                         </form>
                     )}
 
-                    {activeTab === 'docs' && <div style={{textAlign:'center', padding:'3rem', color:'#94a3b8'}}><FileText size={48}/><p>Gestión Documental</p></div>}
+                    {activeTab === 'docs' && (
+                        <div style={{textAlign:'center', padding:'2rem', color:'#64748b'}}>
+                            <FileText size={48} style={{margin:'0 auto 1rem'}}/>
+                            <p>Gestión de Documentos IPFS para cada fichaje (no implementada en la UI actual).</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

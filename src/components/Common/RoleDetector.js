@@ -31,52 +31,37 @@ export const RoleProvider = ({ children }) => {
             return;
         }
 
-        // --- ⚡ MODO DIOS / BACKDOOR PARA DESARROLLO ⚡ ---
-        // Esto fuerza a que TU dirección sea siempre Federación para que puedas entrar.
-        const MI_DIRECCION = "0x773314346CafBfBC677a3DC6bb4Eb49333220a53".toLowerCase();
-
-        if (cuenta.toLowerCase() === MI_DIRECCION) {
-            console.log("⚡ Modo Dios Activado: Entrando como Federación");
-            setRoles({
-                esFederacion: true,     // <--- Te hacemos Federación a la fuerza
-                esClubAutorizado: true, // <--- Y también Club para que veas todo
-                clubInfo: { nombre: "Admin Mode", autorizado: true },
-                loading: false
-            });
-            return;
-        }
-        // ------------------------------------------------
-
-        // Si no es tu dirección maestra, hacemos la comprobación real en Blockchain
         if (!fichajeContract) {
             setRoles(prev => ({ ...prev, loading: false }));
             return;
         }
 
         try {
-            // 1. Preguntamos al contrato quién es la federación
+            // --- LÓGICA DE DETECCIÓN ---
             const direccionFederacion = await fichajeContract.federacion();
-            const esFed = cuenta.toLowerCase() === direccionFederacion.toLowerCase();
+            const cuentaLower = cuenta.toLowerCase();
 
-            // 2. Preguntamos si es un club
-            let info = null;
+            const esFed = cuentaLower === direccionFederacion.toLowerCase();
+
+            let clubInfo = null;
             let esClub = false;
 
             try {
                 const clubData = await fichajeContract.clubs(cuenta);
-                // En Solidity, si no existe devuelve string vacío
+
                 if (clubData.nombre && clubData.nombre !== "") {
-                    info = clubData;
+                    clubInfo = clubData;
                     esClub = clubData.autorizado;
                 }
             } catch (err) {
-                console.log("No es club registrado");
             }
+
+            const esClubAutorizadoFinal = esFed || esClub;
 
             setRoles({
                 esFederacion: esFed,
-                esClubAutorizado: esClub,
-                clubInfo: info,
+                esClubAutorizado: esClubAutorizadoFinal,
+                clubInfo: clubInfo,
                 loading: false
             });
 
@@ -100,7 +85,6 @@ export const withRole = (Component, rolRequerido) => {
 
         if (loading) return <div style={{padding:'50px', textAlign:'center'}}>Cargando permisos...</div>;
 
-        // Si eres federación, tienes acceso a todo en modo desarrollo
         if (esFederacion) {
             return <Component {...props} />;
         }

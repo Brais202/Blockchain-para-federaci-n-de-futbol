@@ -4,12 +4,11 @@ import { Navigate } from 'react-router-dom';
 import { useContracts } from './Common/ContractContext';
 import {
     Building2, Users, Activity, Lock, ShieldAlert, CheckCircle,
-    Search, FileText, ArrowRightLeft, FileSearch, ClipboardCheck,
+    Search, FileText, ArrowRightLeft, ClipboardCheck,
     History, Clock
 } from 'lucide-react';
 
 const FederationView = () => {
-    // 1. CONTEXTO REAL DE BLOCKCHAIN
     const { fichajeContract, cuenta, provider } = useContracts();
 
     // Estados
@@ -29,32 +28,24 @@ const FederationView = () => {
     const [activeTab, setActiveTab] = useState('pendientes');
     const [loading, setLoading] = useState(false);
 
-    // 2. CARGA DE DATOS REALES (SMART CONTRACT)
     const cargarDatos = useCallback(async () => {
         if (!fichajeContract) return;
         setLoading(true);
 
         try {
-            // A. Totales
             const totalFichajesBN = await fichajeContract.totalFichajes();
             const totalFichajes = totalFichajesBN.toNumber();
+            const totalClubsRegistradosBN = await fichajeContract.getClubsCount();
+            const totalClubsRegistrados = totalClubsRegistradosBN.toNumber();
 
-            // B. Cargar Clubs (Iteramos sobre una lista base + cuenta actual para buscar en el mapping)
-            // NOTA: Como en Solidity no podemos iterar mappings fácilmente sin un array auxiliar,
-            // aquí usamos esta lista demo para buscar. Si tu contrato tiene un array de direcciones, úsalo mejor.
-            const clubsDemo = [
-                "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-                "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-                "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-                cuenta
-            ];
-
-            const uniqueClubs = [...new Set(clubsDemo.map(c => c.toLowerCase()))];
             const clubsEncontrados = [];
 
-            for (const dir of uniqueClubs) {
+            for (let i = 0; i < totalClubsRegistrados; i++) {
                 try {
+                    const dir = await fichajeContract.clubsRegistrados(i);
+
                     const info = await fichajeContract.clubs(dir);
+
                     if (info.nombre && info.nombre !== "") {
                         clubsEncontrados.push({
                             direccion: dir,
@@ -63,31 +54,31 @@ const FederationView = () => {
                             fechaRegistro: info.fechaRegistro
                         });
                     }
-                } catch (e) { }
+                } catch (e) {
+                    console.error(`Error cargando club en indice ${i}:`, e);
+                }
             }
             setClubs(clubsEncontrados);
 
-            // C. Cargar Fichajes y Clasificar (Pendientes vs Finalizados)
             const pendientesArray = [];
             const finalizadosArray = [];
 
             for (let i = 1; i <= totalFichajes; i++) {
                 try {
                     const f = await fichajeContract.fichajes(i);
-                    // Obtenemos nombres de clubs origen/destino para mostrar bonito en la UI
                     const origenInfo = await fichajeContract.clubs(f.clubes.clubOrigen);
                     const destinoInfo = await fichajeContract.clubs(f.clubes.clubDestino);
 
                     const fichajeData = {
                         id: i,
                         jugador: f.jugador.nombreJugador,
-                        origen: origenInfo.nombre || "Desconocido", // Fallback si no encuentra nombre
+                        origen: origenInfo.nombre || "Desconocido",
                         destino: destinoInfo.nombre || "Desconocido",
                         valor: ethers.utils.formatEther(f.valorTransferencia),
                         ipfsHash: f.ipfsHash,
                         firmaOrigen: f.firmas.firmaOrigen,
                         firmaDestino: f.firmas.firmaDestino,
-                        aprobado: f.aprobado // Booleano directo del struct
+                        aprobado: f.aprobado
                     };
 
                     if (f.aprobado === true) {
@@ -101,7 +92,6 @@ const FederationView = () => {
             setFichajesPendientes(pendientesArray);
             setFichajesFinalizados(finalizadosArray);
 
-            // D. Estadísticas Financieras (Balance del contrato)
             let fondos = "0.0";
             try {
                 const balance = await provider.getBalance(fichajeContract.address);
@@ -115,7 +105,7 @@ const FederationView = () => {
             });
 
         } catch (error) { console.error("Error general cargando datos:", error); } finally { setLoading(false); }
-    }, [fichajeContract, provider, cuenta]);
+    }, [fichajeContract, provider]);
 
     useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
@@ -168,7 +158,6 @@ const FederationView = () => {
         }
     };
 
-    // Helper visual para cambiar la lista según el tab
     const listaMostrada = activeTab === 'pendientes' ? fichajesPendientes : fichajesFinalizados;
 
     if (!cuenta) return <Navigate to="/" replace />;
@@ -281,7 +270,6 @@ const FederationView = () => {
 
                     <div>
                         <h4 style={{marginBottom:'1rem', marginTop:'2rem'}}>Clubs Registrados</h4>
-                        {/* APLICACIÓN DEL DESPLAZABLE A LA LISTA DE CLUBS */}
                         <div className="scrollable-list-clubs">
                             {clubs.length === 0 ? <p style={{textAlign:'center', color:'#94a3b8'}}>No hay clubs encontrados</p> :
                                 clubs.map((c, i) => (
@@ -325,7 +313,6 @@ const FederationView = () => {
                     {loading ? (
                         <p style={{textAlign:'center', color:'#94a3b8'}}>Cargando datos de la Blockchain...</p>
                     ) : (
-                        // APLICACIÓN DEL DESPLAZABLE A LA LISTA DE FICHAJES
                         <div className="scrollable-list-fichajes">
                             {listaMostrada.length === 0 ? (
                                 <p style={{textAlign:'center', color:'#94a3b8'}}>No hay fichajes {activeTab} para mostrar.</p>

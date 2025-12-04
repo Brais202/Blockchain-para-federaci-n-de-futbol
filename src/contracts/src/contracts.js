@@ -1,12 +1,30 @@
 // Dirección de tu contrato en Sepolia
 export const addresses = {
-    fichajes: "0xAD6ffdC361bFa0B64DA49446415D6EF9dB24aB3e",
+    fichajes: "0x64ace1A477Fd5eb9EE1B79db2680B09c0DB6ee66",
 };
 
 // El ABI completo que me has pasado
 export const abis = {
     fichajes:
         [
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_ipfsHash",
+                        "type": "string"
+                    }
+                ],
+                "name": "anadirDocumentoFichaje",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
             {
                 "inputs": [
                     {
@@ -21,32 +39,6 @@ export const abis = {
                     }
                 ],
                 "name": "autorizarClub",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "_id",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "depositarFondosEscrow",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "_club",
-                        "type": "address"
-                    }
-                ],
-                "name": "desautorizarClub",
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
@@ -76,6 +68,32 @@ export const abis = {
                 "type": "event"
             },
             {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_id",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "depositarFondosEscrow",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_club",
+                        "type": "address"
+                    }
+                ],
+                "name": "desautorizarClub",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
                 "anonymous": false,
                 "inputs": [
                     {
@@ -91,7 +109,7 @@ export const abis = {
                         "type": "string"
                     }
                 ],
-                "name": "DocumentoSubido",
+                "name": "DocumentoAnadido",
                 "type": "event"
             },
             {
@@ -108,7 +126,7 @@ export const abis = {
                     },
                     {
                         "internalType": "uint256",
-                        "name": "_edad",
+                        "name": "_fechaNacimiento",
                         "type": "uint256"
                     },
                     {
@@ -300,7 +318,7 @@ export const abis = {
                     },
                     {
                         "internalType": "uint256",
-                        "name": "_edad",
+                        "name": "_fechaNacimiento",
                         "type": "uint256"
                     },
                     {
@@ -338,24 +356,6 @@ export const abis = {
                     }
                 ],
                 "name": "setDerechosFormacion",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "_id",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "_ipfsHash",
-                        "type": "string"
-                    }
-                ],
-                "name": "subirDocumentoFichaje",
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function"
@@ -484,7 +484,7 @@ export const abis = {
                             },
                             {
                                 "internalType": "uint256",
-                                "name": "edad",
+                                "name": "fechaNacimiento",
                                 "type": "uint256"
                             }
                         ],
@@ -523,11 +523,6 @@ export const abis = {
                         "internalType": "bool",
                         "name": "aprobado",
                         "type": "bool"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "ipfsHash",
-                        "type": "string"
                     },
                     {
                         "internalType": "address",
@@ -574,6 +569,38 @@ export const abis = {
                     }
                 ],
                 "name": "fondosEscrow",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getClubsCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_id",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "obtenerEdadJugador",
                 "outputs": [
                     {
                         "internalType": "uint256",

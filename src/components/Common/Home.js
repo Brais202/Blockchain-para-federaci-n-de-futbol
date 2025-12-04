@@ -4,15 +4,9 @@ import { useContracts } from './ContractContext';
 import { useRoles } from './RoleDetector';
 
 const Home = () => {
-    // 1. Obtenemos el estado global
     const { cuenta, conectarWallet } = useContracts();
     const { esFederacion, esClubAutorizado, loading } = useRoles();
 
-    // ---------------------------------------------------------
-    // LÓGICA DE REDIRECCIÓN AUTOMÁTICA
-    // ---------------------------------------------------------
-
-    // A. Si está conectado y ya sabemos sus roles (no está cargando)
     if (cuenta && !loading) {
         if (esFederacion) {
             return <Navigate to="/federacion" replace />;
@@ -41,7 +35,6 @@ const Home = () => {
                 {/* CONTENIDO VARIABLE SEGÚN ESTADO */}
 
                 {!cuenta ? (
-                    // CASO 1: NO CONECTADO
                     <div className="login-section">
                         <p>Bienvenido. Para acceder al panel de gestión de tu Club o de la Federación, es necesario conectar tu Wallet.</p>
                         <button onClick={conectarWallet} className="btn-connect-home">
@@ -49,13 +42,11 @@ const Home = () => {
                         </button>
                     </div>
                 ) : loading ? (
-                    // CASO 2: CARGANDO PERMISOS
                     <div className="loading-section">
                         <div className="spinner"></div>
                         <p>Verificando credenciales en la Blockchain...</p>
                     </div>
                 ) : (
-                    // CASO 3: CONECTADO PERO SIN ROL (ERROR)
                     <div className="error-section">
                         <div className="status-badge error">Acceso Restringido</div>
                         <h3>Cuenta no autorizada</h3>
@@ -67,7 +58,6 @@ const Home = () => {
 
             </div>
 
-            {/* ESTILOS INTERNOS PARA QUE SE VEA BIEN AL INSTANTE */}
             <style>{`
         .home-container {
           display: flex;

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useContracts } from './ContractContext';
 
 const RoleContext = createContext();
@@ -20,13 +20,9 @@ export const RoleProvider = ({ children }) => {
         loading: true
     });
 
-    useEffect(() => {
-        detectarRoles();
-    }, [cuenta, fichajeContract]);
-
-    const detectarRoles = async () => {
+    const detectarRoles = useCallback(async () => {
         // Si no hay cuenta, reseteamos y terminamos
-        if (!cuenta) {
+        if (!cuenta || !fichajeContract) {
             setRoles({ esFederacion: false, esClubAutorizado: false, clubInfo: null, loading: false });
             return;
         }
@@ -46,12 +42,6 @@ export const RoleProvider = ({ children }) => {
             return;
         }
         // ------------------------------------------------
-
-        // Si no es tu dirección maestra, hacemos la comprobación real en Blockchain
-        if (!fichajeContract) {
-            setRoles(prev => ({ ...prev, loading: false }));
-            return;
-        }
 
         try {
             // 1. Preguntamos al contrato quién es la federación
@@ -84,7 +74,11 @@ export const RoleProvider = ({ children }) => {
             console.error('Error detectando roles:', error);
             setRoles({ esFederacion: false, esClubAutorizado: false, clubInfo: null, loading: false });
         }
-    };
+    }, [cuenta, fichajeContract]);
+
+    useEffect(() => {
+        detectarRoles();
+    }, [detectarRoles]);
 
     return (
         <RoleContext.Provider value={{ ...roles, refrescarRoles: detectarRoles }}>

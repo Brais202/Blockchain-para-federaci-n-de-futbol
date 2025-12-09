@@ -52,7 +52,7 @@ const WalletConnector = () => {
 
       {mostrarModal && (
         <div className="wallet-modal">
-          <div className="modal-content">
+     //     <div className="modal-content">
             <h3>Conectar Wallet</h3>
             <p>Para usar la aplicación, necesitas conectar tu wallet de MetaMask</p>
             <button onClick={manejarConexion}>

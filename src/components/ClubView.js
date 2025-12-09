@@ -172,7 +172,7 @@ const ClubView = () => {
 
             updateStatus("3/4 - Guardando CID en la Blockchain...");
             const signer = fichajeContract.connect(provider.getSigner());
-            const tx = await signer.subirDocumentoFichaje(fichajeId, cid);
+            const tx = await signer.anadirDocumentoFichaje(fichajeId, cid);
             await tx.wait();
 
             updateStatus("4/4 - ✅ ¡Éxito! Documento registrado.");

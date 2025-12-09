@@ -22,7 +22,7 @@ const ClubView = () => {
     const [estadisticas, setEstadisticas] = useState({ enviados: 0, recibidos: 0, gastado: 0, ingresado: 0 });
     const [nuevoFichaje, setNuevoFichaje] = useState({ nombreJugador: "", fechaNacimiento: "", clubDestino: "", valorTransferencia: "", agente: "" });
 
-    // Estados para la subida de documentos (nuestra funcionalidad)
+    // Estados para la subida de documentos 
     const [selectedFiles, setSelectedFiles] = useState({});
     const [uploadStatus, setUploadStatus] = useState({});
 
@@ -142,7 +142,7 @@ const ClubView = () => {
         } catch (error) { alert("Error firma: " + (error.reason || error.message)); }
     };
     
-    // Nuestra lógica para subir documentos
+    // Lógica para subir documentos
     const handleFileChange = (e, fichajeId) => {
         const file = e.target.files[0];
         if (file && file.type === "application/pdf") {

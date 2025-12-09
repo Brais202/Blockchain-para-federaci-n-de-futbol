@@ -38,7 +38,7 @@ function App() {
                                     <Route path="/" element={<Home />} />
 
                                     {/* RUTAS PROTEGIDAS */}
-                                    {/* Ya no pasamos <RouteProtected>, pasamos el componente ya envuelto */}
+                                    
 
                                     <Route
                                         path="/club/*"

@@ -1,9 +1,9 @@
-// Dirección de tu contrato en Sepolia
+// Dirección de  contrato en Sepolia
 export const addresses = {
     fichajes: "0x64ace1A477Fd5eb9EE1B79db2680B09c0DB6ee66",
 };
 
-// El ABI completo que me has pasado
+
 export const abis = {
     fichajes:
         [

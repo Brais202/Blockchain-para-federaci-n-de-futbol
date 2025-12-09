@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 
 /**
- * Hook personalizado para manejar transacciones blockchain con mejor UX
- * @returns {Object} Funciones y estados para manejar transacciones
+ * Hook personalizado para manejar transacciones blockchain 
+ 
  */
 export const useTransaction = () => {
   const [loading, setLoading] = useState(false);
@@ -11,8 +11,7 @@ export const useTransaction = () => {
 
   /**
    * Parsea errores de blockchain de forma legible
-   * @param {Error} error - Error de la transacción
-   * @returns {string} Mensaje de error legible
+  
    */
   const parseError = useCallback((error) => {
     console.error('Error original:', error);
@@ -58,9 +57,7 @@ export const useTransaction = () => {
 
   /**
    * Ejecuta una transacción con manejo de errores mejorado
-   * @param {Function} txFunction - Función que ejecuta la transacción
-   * @param {Object} options - Opciones adicionales
-   * @returns {Promise<Object>} Resultado de la transacción
+
    */
   const executeTransaction = useCallback(async (txFunction, options = {}) => {
     const {
@@ -128,7 +125,7 @@ export const useTransaction = () => {
 
   /**
    * Valida que MetaMask esté conectado y en la red correcta
-   * @returns {Promise<Object>} Estado de validación
+   
    */
   const validateConnection = useCallback(async () => {
     try {
@@ -172,9 +169,7 @@ export const useTransaction = () => {
 
   /**
    * Obtiene el enlace al explorador de bloques para una transacción
-   * @param {string} hash - Hash de la transacción
-   * @param {string} network - Red (opcional, default: 'sepolia')
-   * @returns {string} URL del explorador
+
    */
   const getExplorerLink = useCallback((hash, network = 'sepolia') => {
     const explorers = {

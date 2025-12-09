@@ -34,9 +34,7 @@ export const initIPFS = async () => {
 
 /**
  * Sube un buffer de datos a IPFS.
- * Esta es la función principal de subida.
- * @param {Uint8Array} buffer - El buffer de datos a subir.
- * @returns {Promise<object>} - Objeto con el CID, path, size y URL.
+
  */
 export const subirContenido = async (buffer) => {
   if (!buffer || !(buffer instanceof Uint8Array)) {
@@ -50,8 +48,7 @@ export const subirContenido = async (buffer) => {
     
     const result = await client.add(buffer, {
       progress: (bytes) => {
-        // Opcional: puedes conectar esto a un estado para una barra de progreso
-        // console.log(`Progreso: ${bytes} bytes subidos`);
+       
       }
     });
     
@@ -73,9 +70,7 @@ export const subirContenido = async (buffer) => {
 
 /**
  * Sube un archivo (File object) a IPFS.
- * Lee el archivo, lo convierte a buffer y usa 'subirContenido'.
- * @param {File} file - Archivo a subir
- * @returns {Promise<string>} - Hash CID del archivo en IPFS
+ 
  */
 export const subirArchivo = async (file) => {
   try {
@@ -95,8 +90,7 @@ export const subirArchivo = async (file) => {
 
 /**
  * Sube contenido JSON a IPFS
- * @param {Object} jsonData - Datos JSON a subir
- * @returns {Promise<string>} - Hash CID del contenido en IPFS
+
  */
 export const subirJSONIPFS = async (jsonData) => {
   try {
@@ -125,8 +119,7 @@ export const subirJSONIPFS = async (jsonData) => {
 
 /**
  * Recupera un archivo de IPFS
- * @param {string} cid - CID del archivo en IPFS
- * @returns {Promise<Uint8Array>} - Contenido del archivo
+ 
  */
 export const obtenerArchivoIPFS = async (cid) => {
   try {
@@ -160,8 +153,7 @@ export const obtenerArchivoIPFS = async (cid) => {
 
 /**
  * Recupera contenido JSON de IPFS
- * @param {string} cid - CID del contenido en IPFS
- * @returns {Promise<Object>} - Objeto JSON
+
  */
 export const obtenerJSONIPFS = async (cid) => {
   try {
@@ -176,8 +168,7 @@ export const obtenerJSONIPFS = async (cid) => {
 
 /**
  * Genera URL pública para acceder a un archivo en IPFS
- * @param {string} cid - CID del archivo
- * @returns {string} - URL pública
+
  */
 export const obtenerURLPublica = (cid) => {
   return `${IPFS_GATEWAY}/ipfs/${cid}`;
@@ -185,7 +176,7 @@ export const obtenerURLPublica = (cid) => {
 
 /**
  * Verifica si IPFS está disponible
- * @returns {Promise<boolean>}
+
  */
 export const verificarConexionIPFS = async () => {
   try {
@@ -200,7 +191,7 @@ export const verificarConexionIPFS = async () => {
 /**
  * Sube múltiples archivos a IPFS
  * @param {File[]} files - Array de archivos
- * @returns {Promise<Array>} - Array de resultados con CIDs
+ 
  */
 export const subirMultiplesArchivosIPFS = async (files) => {
   try {
@@ -224,7 +215,7 @@ export const subirMultiplesArchivosIPFS = async (files) => {
 
 /**
  * Pin de un archivo en IPFS (para mantenerlo disponible)
- * @param {string} cid - CID del archivo a hacer pin
+ 
  */
 export const pinArchivo = async (cid) => {
   try {
@@ -239,8 +230,7 @@ export const pinArchivo = async (cid) => {
 
 /**
  * Obtiene información sobre un archivo en IPFS
- * @param {string} cid - CID del archivo
- * @returns {Promise<Object>} - Información del archivo
+
  */
 export const obtenerInfoArchivo = async (cid) => {
   try {

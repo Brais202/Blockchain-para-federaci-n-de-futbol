@@ -38,7 +38,7 @@ const FederationView = () => {
             const totalFichajesBN = await fichajeContract.totalFichajes();
             const totalFichajes = totalFichajesBN.toNumber();
 
-            // Usamos la función del contrato que tu compañero añadió para obtener el número de clubs.
+            
             const totalClubsRegistradosBN = await fichajeContract.getClubsCount();
             const totalClubsRegistrados = totalClubsRegistradosBN.toNumber();
             
@@ -129,7 +129,7 @@ const FederationView = () => {
         } catch (error) { alert("Error al revocar: " + error.message); }
     };
     
-    // Nuestra lógica de criptografía
+    // lógica de criptografía
     const handleGenerateKeys = () => {
         const identity = EthCrypto.createIdentity();
         setFederationKeys(identity);

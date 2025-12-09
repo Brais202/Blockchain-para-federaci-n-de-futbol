@@ -43,7 +43,7 @@ export const RoleProvider = ({ children }) => {
                 // Silencioso, no es un error fatal, solo no es un club registrado
             }
 
-            // La lógica de tu compañero: la federación también cuenta como "club autorizado" para ver todo.
+            
             const esClubAutorizadoFinal = esFed || esClub;
 
             setRoles({
@@ -78,7 +78,7 @@ export const withRole = (Component, rolRequerido) => {
 
         if (loading) return <div style={{padding:'50px', textAlign:'center'}}>Cargando permisos...</div>;
 
-        // La versión de tu compañero es más flexible aquí
+       
         if (esFederacion) {
             return <Component {...props} />;
         }
